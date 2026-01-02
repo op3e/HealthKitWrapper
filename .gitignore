@@ -1,0 +1,5 @@
+build
+/.DS_Store
+/HealthKitWrapper.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+/HealthKitWrapper.xcodeproj/project.xcworkspace/xcuserdata/alexwallace.xcuserdatad/UserInterfaceState.xcuserstate
+/HealthKitWrapper.xcodeproj/xcuserdata/alexwallace.xcuserdatad/xcschemes/xcschememanagement.plist

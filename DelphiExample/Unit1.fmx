@@ -1,0 +1,149 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'HKWrapper Test'
+  ClientHeight = 667
+  ClientWidth = 375
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 3
+  object MemoLog: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    ReadOnly = True
+    TextSettings.Font.Family = 'Courier New'
+    TextSettings.Font.Size = 11.000000000000000000
+    Align = Top
+    Position.Y = 44.000000000000000000
+    Size.Width = 375.000000000000000000
+    Size.Height = 200.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    Viewport.Width = 371.000000000000000000
+    Viewport.Height = 196.000000000000000000
+  end
+  object ToolBar1: TToolBar
+    Size.Width = 375.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object LabelTitle: TLabel
+      Align = Center
+      Size.Width = 375.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.HorzAlign = Center
+      Text = 'HealthKit Wrapper Test'
+      TabOrder = 0
+    end
+  end
+  object VertScrollBox1: TVertScrollBox
+    Align = Client
+    Position.Y = 244.000000000000000000
+    Size.Width = 375.000000000000000000
+    Size.Height = 423.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    Viewport.Width = 375.000000000000000000
+    Viewport.Height = 423.000000000000000000
+    object LayoutButtons: TLayout
+      Align = Top
+      Size.Width = 375.000000000000000000
+      Size.Height = 400.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      object BtnInitialize: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 16.000000000000000000
+        Size.Width = 165.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        Text = 'Initialize'
+        TextSettings.Trimming = None
+        OnClick = BtnInitializeClick
+      end
+      object BtnShutdown: TButton
+        Position.X = 194.000000000000000000
+        Position.Y = 16.000000000000000000
+        Size.Width = 165.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        Text = 'Shutdown'
+        TextSettings.Trimming = None
+        OnClick = BtnShutdownClick
+      end
+      object BtnRequestAuth: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 72.000000000000000000
+        Size.Width = 343.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 2
+        Text = 'Request Authorization'
+        TextSettings.Trimming = None
+        OnClick = BtnRequestAuthClick
+      end
+      object BtnQueryLatest: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 136.000000000000000000
+        Size.Width = 343.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 3
+        Text = 'Query Latest Heart Rate'
+        TextSettings.Trimming = None
+        OnClick = BtnQueryLatestClick
+      end
+      object BtnQueryRange: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 192.000000000000000000
+        Size.Width = 343.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 4
+        Text = 'Query Last 24 Hours'
+        TextSettings.Trimming = None
+        OnClick = BtnQueryRangeClick
+      end
+      object BtnStream: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 256.000000000000000000
+        Size.Width = 343.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 5
+        Text = 'Start Streaming'
+        TextSettings.Trimming = None
+        OnClick = BtnStreamClick
+      end
+      object BtnClearLog: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 320.000000000000000000
+        Size.Width = 343.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 6
+        Text = 'Clear Log'
+        TextSettings.Trimming = None
+        OnClick = BtnClearLogClick
+      end
+    end
+  end
+  object TimerPoll: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = TimerPollTimer
+    Left = 312
+    Top = 80
+  end
+  object TimerStream: TTimer
+    Enabled = False
+    Interval = 1000
+    OnTimer = TimerStreamTimer
+    Left = 312
+    Top = 136
+  end
+end
