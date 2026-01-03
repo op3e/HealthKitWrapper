@@ -5,8 +5,10 @@ struct ContentView: View {
     @State private var isInitialized = false
     @State private var isAuthorized = false
     @State private var isStreaming = false
+    @State private var isWatchMonitoring = false
     @State private var pollTimer: Timer?
     @State private var streamTimer: Timer?
+    @State private var watchTimer: Timer?
 
     var body: some View {
         NavigationView {
@@ -82,6 +84,31 @@ struct ContentView: View {
 
                         Divider().padding(.vertical, 8)
 
+                        // Watch Section
+                        Group {
+                            Text("Apple Watch")
+                                .font(.headline)
+                                .foregroundColor(.secondary)
+
+                            Button("Check Watch Status") { checkWatchStatus() }
+                                .buttonStyle(TestButtonStyle(color: .cyan))
+                                .disabled(!isInitialized)
+
+                            HStack(spacing: 12) {
+                                Button(isWatchMonitoring ? "Stop Watch" : "Start Watch") {
+                                    if isWatchMonitoring {
+                                        stopWatchMonitoring()
+                                    } else {
+                                        startWatchMonitoring()
+                                    }
+                                }
+                                .buttonStyle(TestButtonStyle(color: isWatchMonitoring ? .red : .mint))
+                                .disabled(!isInitialized)
+                            }
+                        }
+
+                        Divider().padding(.vertical, 8)
+
                         Button("Clear Log") { logMessages.removeAll() }
                             .buttonStyle(TestButtonStyle(color: .gray))
                     }
@@ -128,10 +155,12 @@ struct ContentView: View {
     private func shutdown() {
         stopPolling()
         stopStreamTimer()
+        stopWatchTimer()
         HKW_Shutdown()
         isInitialized = false
         isAuthorized = false
         isStreaming = false
+        isWatchMonitoring = false
         log("✓ Shutdown complete")
     }
 
@@ -268,6 +297,74 @@ struct ContentView: View {
                 log("STREAM: \(Int(samples[i].bpm)) BPM")
             }
         }
+    }
+
+    // MARK: - Watch Functions
+
+    private func checkWatchStatus() {
+        let supported = HKW_IsWatchSupported()
+        let reachable = HKW_IsWatchReachable()
+
+        log("Watch Supported: \(supported)")
+        log("Watch Reachable: \(reachable)")
+
+        if !supported {
+            log("⚠️ WatchConnectivity not supported on this device")
+        } else if !reachable {
+            log("⚠️ Watch not reachable - ensure watch app is running")
+        } else {
+            log("✓ Watch is connected and reachable")
+        }
+    }
+
+    private func startWatchMonitoring() {
+        let result = HKW_SendWatchCommand("startMonitoring")
+        if result == HKW_SUCCESS.rawValue {
+            isWatchMonitoring = true
+            log("✓ Sent startMonitoring to watch")
+
+            // Start timer to read watch heart rate data
+            watchTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [self] _ in
+                readWatchData()
+            }
+        } else {
+            log("ERROR sending to watch: \(errorString(result))")
+            if let msg = String(cString: HKW_GetLastErrorMessage(), encoding: .utf8), !msg.isEmpty {
+                log("  -> \(msg)")
+            }
+        }
+    }
+
+    private func stopWatchMonitoring() {
+        stopWatchTimer()
+        let result = HKW_SendWatchCommand("stopMonitoring")
+        isWatchMonitoring = false
+        if result == HKW_SUCCESS.rawValue {
+            log("✓ Sent stopMonitoring to watch")
+        } else {
+            log("ERROR sending stop to watch: \(errorString(result))")
+        }
+    }
+
+    private func readWatchData() {
+        let count = HKW_GetWatchHeartRateCount()
+        if count > 0 {
+            var samples = [HKWHeartRateSample](repeating: HKWHeartRateSample(), count: Int(count))
+            var actualCount: Int32 = 0
+
+            samples.withUnsafeMutableBufferPointer { buffer in
+                _ = HKW_ReadWatchHeartRates(buffer.baseAddress, count, &actualCount)
+            }
+
+            for i in 0..<Int(actualCount) {
+                log("⌚ WATCH: \(Int(samples[i].bpm)) BPM")
+            }
+        }
+    }
+
+    private func stopWatchTimer() {
+        watchTimer?.invalidate()
+        watchTimer = nil
     }
 
     // MARK: - Helpers

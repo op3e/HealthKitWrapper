@@ -9,6 +9,7 @@ A C-compatible wrapper around Apple's HealthKit framework, designed for use with
 - Query historical heart rate data (date range)
 - Real-time heart rate streaming
 - Polling-based async pattern (no callbacks required)
+- watchOS companion app for triggering on-demand heart rate readings
 
 ## Building the Static Library
 
@@ -149,7 +150,7 @@ Add `.` (current directory) to **Delphi Compiler > Search path**
 #### Linker Options
 Add to **Delphi Compiler > Linking > Options**:
 ```
--framework HealthKit -lobjc -arch arm64
+-framework HealthKit -framework WatchConnectivity -lobjc -arch arm64
 ```
 
 #### HealthKit Framework in SDK Manager
@@ -361,6 +362,151 @@ begin
   end;
 end;
 ```
+
+### Watch Companion App
+
+The watch companion app allows you to trigger on-demand heart rate readings from the Apple Watch. Heart rate data is sent from the watch to the iOS app via WatchConnectivity.
+
+#### Building the Watch App
+
+1. Open `HealthKitWrapper.xcodeproj` in Xcode
+2. Select **File > New > Target**
+3. Choose **watchOS > App**
+4. Name it "WatchApp" and add to the HealthKitWrapper project
+5. Replace the generated files with the contents from the `WatchApp` folder
+6. Configure the watch app:
+   - Set **WKCompanionAppBundleIdentifier** in Info.plist to match your iOS app's bundle ID
+   - Ensure HealthKit capability is enabled
+   - Add the HealthKit entitlement
+
+#### Using Watch Heart Rate Data
+
+```pascal
+procedure CheckWatchReachability;
+begin
+  if HKW_IsWatchSupported then
+  begin
+    if HKW_IsWatchReachable then
+      LblWatchStatus.Text := 'Watch Connected'
+    else
+      LblWatchStatus.Text := 'Watch Not Reachable';
+  end
+  else
+    LblWatchStatus.Text := 'Watch Not Supported';
+end;
+
+procedure StartWatchMonitoring;
+begin
+  // Send command to watch to start monitoring
+  HKW_SendWatchCommand('startMonitoring');
+  WatchTimer.Enabled := True;
+end;
+
+procedure StopWatchMonitoring;
+begin
+  WatchTimer.Enabled := False;
+  HKW_SendWatchCommand('stopMonitoring');
+end;
+
+procedure WatchTimerTimer(Sender: TObject);
+var
+  Count, ActualCount, i: Integer;
+  Samples: array[0..31] of THKWHeartRateSample;
+begin
+  Count := HKW_GetWatchHeartRateCount;
+  if Count > 0 then
+  begin
+    if Count > 32 then Count := 32;
+    ActualCount := 0;
+
+    if HKW_ReadWatchHeartRates(@Samples[0], Count, @ActualCount) = HKW_SUCCESS then
+    begin
+      for i := 0 to ActualCount - 1 do
+        Memo1.Lines.Add(Format('Watch: %.0f BPM', [Samples[i].bpm]));
+    end;
+  end;
+end;
+```
+
+#### Deploying Watch App with Delphi
+
+Since Delphi cannot build watchOS apps, you must embed the watch app into the Delphi app bundle after building. Use the `embed_watch_app.sh` script to automate this.
+
+**Prerequisites:**
+- Xcode installed with watchOS SDK
+- Delphi app built via PAServer (but not yet deployed)
+- iPhone connected to Mac
+
+**Usage:**
+
+```bash
+# Basic usage (auto-detects connected device)
+./embed_watch_app.sh -d /path/to/your/DelphiApp.app
+
+# Full example with PAServer path
+./embed_watch_app.sh -d ~/PAServer/scratch-dir/myprofile/Project1.app
+
+# With custom options
+./embed_watch_app.sh \
+    -d ~/PAServer/scratch-dir/myprofile/Project1.app \
+    -p /path/to/HealthKitWrapper.xcodeproj \
+    -t TestWatchApp \
+    -i DEVICE-UUID
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-d, --delphi-app PATH` | **(Required)** Path to the Delphi .app bundle |
+| `-p, --project PATH` | Xcode project path (default: HealthKitWrapper.xcodeproj) |
+| `-t, --target NAME` | Watch target name (default: TestWatchApp) |
+| `-D, --derived-data PATH` | Xcode derived data path |
+| `-i, --device-id ID` | Device UUID for deployment (auto-detected if not specified) |
+| `-h, --help` | Show help |
+
+**Workflow:**
+
+1. In RAD Studio, **Build** your Delphi project (Shift+F9), but do NOT deploy
+2. On Mac, run the embed script:
+   ```bash
+   ./embed_watch_app.sh -d ~/PAServer/scratch-dir/myprofile/Project1.app
+   ```
+3. The script will:
+   - Build the watch app
+   - Embed it into the Delphi app bundle
+   - Re-sign everything
+   - Deploy to your iPhone
+4. Open the **Watch** app on iPhone
+5. Find your app under **Available Apps** and tap **Install**
+
+**Finding Your Delphi App Path:**
+
+The Delphi app is built in the PAServer scratch directory on your Mac:
+```bash
+# List PAServer scratch directories
+ls ~/PAServer/scratch-dir/
+
+# Common path pattern
+~/PAServer/scratch-dir/<connection-name>/Project1.app
+```
+
+#### Watch Commands
+
+| Command | Description |
+|---------|-------------|
+| `startMonitoring` | Start workout session and heart rate monitoring on watch |
+| `stopMonitoring` | Stop workout session and monitoring |
+
+#### Watch API Functions
+
+| Function | Description |
+|----------|-------------|
+| `HKW_IsWatchSupported` | Returns true if WatchConnectivity is available |
+| `HKW_IsWatchReachable` | Returns true if the paired watch is reachable |
+| `HKW_SendWatchCommand` | Send a command string to the watch app |
+| `HKW_GetWatchHeartRateCount` | Get count of pending heart rate samples from watch |
+| `HKW_ReadWatchHeartRates` | Read heart rate samples received from watch |
 
 ### Cleanup
 

@@ -79,6 +79,14 @@ bool HKW_IsHeartRateStreaming(void);
 int HKW_GetStreamingHeartRateCount(void);
 int HKW_ReadStreamingHeartRates(HKWHeartRateSample* outSamples, int maxCount, int* outActualCount);
 
+// MARK: - Watch Connectivity
+
+bool HKW_IsWatchSupported(void);
+bool HKW_IsWatchReachable(void);
+int HKW_SendWatchCommand(const char* command);
+int HKW_GetWatchHeartRateCount(void);
+int HKW_ReadWatchHeartRates(HKWHeartRateSample* outSamples, int maxCount, int* outActualCount);
+
 // MARK: - Utility
 
 const char* HKW_GetLastErrorMessage(void);

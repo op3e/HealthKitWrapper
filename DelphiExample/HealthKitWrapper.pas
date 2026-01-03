@@ -98,6 +98,23 @@ function HKW_ReadStreamingHeartRates(outSamples: PHKWHeartRateSample;
   maxCount: Integer; outActualCount: PInteger): Integer; cdecl;
   external LIB_HEALTHKIT_WRAPPER name 'HKW_ReadStreamingHeartRates';
 
+// Watch Connectivity
+function HKW_IsWatchSupported: Boolean; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_IsWatchSupported';
+
+function HKW_IsWatchReachable: Boolean; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_IsWatchReachable';
+
+function HKW_SendWatchCommand(command: PAnsiChar): Integer; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_SendWatchCommand';
+
+function HKW_GetWatchHeartRateCount: Integer; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_GetWatchHeartRateCount';
+
+function HKW_ReadWatchHeartRates(outSamples: PHKWHeartRateSample;
+  maxCount: Integer; outActualCount: PInteger): Integer; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_ReadWatchHeartRates';
+
 // Utility
 function HKW_GetLastErrorMessage: PAnsiChar; cdecl;
   external LIB_HEALTHKIT_WRAPPER name 'HKW_GetLastErrorMessage';

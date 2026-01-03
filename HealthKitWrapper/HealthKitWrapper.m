@@ -7,15 +7,18 @@
 
 #import <Foundation/Foundation.h>
 #import <HealthKit/HealthKit.h>
+#import <WatchConnectivity/WatchConnectivity.h>
 #import "HealthKitWrapper.h"
 
 #define STREAMING_BUFFER_MAX 100
+#define WATCH_BUFFER_MAX 100
 
 // MARK: - HKWManager Singleton
 
-@interface HKWManager : NSObject
+@interface HKWManager : NSObject <WCSessionDelegate>
 
 @property (nonatomic, strong) HKHealthStore *healthStore;
+@property (nonatomic, strong) WCSession *wcSession;
 
 // Authorization state
 @property (nonatomic, assign) HKWOperationStatus authStatus;
@@ -37,6 +40,9 @@
 @property (nonatomic, strong) HKAnchoredObjectQuery *streamingQuery;
 @property (nonatomic, strong) NSMutableArray *streamingBuffer;
 @property (nonatomic, assign) BOOL isStreaming;
+
+// Watch connectivity state
+@property (nonatomic, strong) NSMutableArray *watchHeartRateBuffer;
 
 // Error message
 @property (nonatomic, strong) NSString *lastErrorMessage;
@@ -63,11 +69,61 @@
     if (self) {
         _rangeHRSamples = [NSMutableArray array];
         _streamingBuffer = [NSMutableArray array];
+        _watchHeartRateBuffer = [NSMutableArray array];
         _authStatus = HKW_STATUS_IDLE;
         _latestHRStatus = HKW_STATUS_IDLE;
         _rangeHRStatus = HKW_STATUS_IDLE;
+
+        // Setup WatchConnectivity
+        if ([WCSession isSupported]) {
+            _wcSession = [WCSession defaultSession];
+            _wcSession.delegate = self;
+            [_wcSession activateSession];
+        }
     }
     return self;
+}
+
+// MARK: - WCSessionDelegate
+
+- (void)session:(WCSession *)session activationDidCompleteWithState:(WCSessionActivationState)activationState error:(NSError *)error {
+    if (error) {
+        NSLog(@"WCSession activation failed: %@", error.localizedDescription);
+    }
+}
+
+- (void)sessionDidBecomeInactive:(WCSession *)session {
+    // Handle session becoming inactive
+}
+
+- (void)sessionDidDeactivate:(WCSession *)session {
+    // Reactivate session
+    [session activateSession];
+}
+
+- (void)session:(WCSession *)session didReceiveMessage:(NSDictionary<NSString *,id> *)message {
+    NSString *type = message[@"type"];
+
+    if ([type isEqualToString:@"heartRate"]) {
+        NSNumber *bpm = message[@"bpm"];
+        NSNumber *timestamp = message[@"timestamp"];
+
+        if (bpm && timestamp) {
+            HKWHeartRateSample sample;
+            sample.bpm = [bpm doubleValue];
+            sample.timestamp = [timestamp doubleValue];
+            sample.sourceDeviceType = 1; // watch
+
+            @synchronized(self.watchHeartRateBuffer) {
+                [self.watchHeartRateBuffer addObject:[NSValue valueWithBytes:&sample objCType:@encode(HKWHeartRateSample)]];
+
+                // Ring buffer behavior
+                if (self.watchHeartRateBuffer.count > WATCH_BUFFER_MAX) {
+                    [self.watchHeartRateBuffer removeObjectAtIndex:0];
+                }
+            }
+        }
+    }
 }
 
 - (int)deviceTypeFromSource:(HKSourceRevision *)source {
@@ -521,7 +577,85 @@ void HKW_Reset(void) {
 
         [mgr.rangeHRSamples removeAllObjects];
         [mgr.streamingBuffer removeAllObjects];
+        [mgr.watchHeartRateBuffer removeAllObjects];
 
         mgr.lastErrorMessage = nil;
     }
+}
+
+// MARK: Watch Connectivity
+
+bool HKW_IsWatchSupported(void) {
+    return [WCSession isSupported];
+}
+
+bool HKW_IsWatchReachable(void) {
+    HKWManager *mgr = [HKWManager shared];
+    if (!mgr.wcSession) {
+        return false;
+    }
+    return mgr.wcSession.isReachable;
+}
+
+int HKW_SendWatchCommand(const char* command) {
+    @autoreleasepool {
+        HKWManager *mgr = [HKWManager shared];
+
+        if (!mgr.wcSession) {
+            mgr.lastErrorMessage = @"Watch connectivity not supported";
+            return HKW_ERROR_NOT_AVAILABLE;
+        }
+
+        if (!mgr.wcSession.isReachable) {
+            mgr.lastErrorMessage = @"Watch is not reachable";
+            return HKW_ERROR_NOT_AVAILABLE;
+        }
+
+        NSString *cmdString = [NSString stringWithUTF8String:command];
+        NSDictionary *message = @{@"command": cmdString};
+
+        [mgr.wcSession sendMessage:message
+                      replyHandler:nil
+                      errorHandler:^(NSError *error) {
+            mgr.lastErrorMessage = error.localizedDescription;
+        }];
+
+        return HKW_SUCCESS;
+    }
+}
+
+int HKW_GetWatchHeartRateCount(void) {
+    HKWManager *mgr = [HKWManager shared];
+    @synchronized(mgr.watchHeartRateBuffer) {
+        return (int)mgr.watchHeartRateBuffer.count;
+    }
+}
+
+int HKW_ReadWatchHeartRates(HKWHeartRateSample* outSamples, int maxCount, int* outActualCount) {
+    if (!outSamples || maxCount <= 0) {
+        return HKW_ERROR_INVALID_PARAM;
+    }
+
+    HKWManager *mgr = [HKWManager shared];
+    int count = 0;
+
+    @synchronized(mgr.watchHeartRateBuffer) {
+        count = MIN((int)mgr.watchHeartRateBuffer.count, maxCount);
+
+        for (int i = 0; i < count; i++) {
+            NSValue *value = mgr.watchHeartRateBuffer[i];
+            [value getValue:&outSamples[i]];
+        }
+
+        // Remove consumed samples
+        if (count > 0) {
+            [mgr.watchHeartRateBuffer removeObjectsInRange:NSMakeRange(0, count)];
+        }
+    }
+
+    if (outActualCount) {
+        *outActualCount = count;
+    }
+
+    return HKW_SUCCESS;
 }
