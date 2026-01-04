@@ -27,6 +27,6 @@
 	<key>WKApplication</key>
 	<true/>
 	<key>WKCompanionAppBundleIdentifier</key>
-	<string>com.op3e.diego</string>
+	<string>com.op3e.hktestapp</string>
 </dict>
 </plist>
