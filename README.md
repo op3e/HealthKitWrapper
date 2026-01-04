@@ -192,6 +192,67 @@ Ensure your app has the HealthKit entitlement. In your `Entitlement.TemplateiOS.
 </plist>
 ```
 
+### Step 6: Apple Developer Portal Setup
+
+Your app needs a provisioning profile with HealthKit entitlement. Follow these steps in the Apple Developer Portal.
+
+#### 6.1 Create App ID
+
+1. Go to [developer.apple.com/account](https://developer.apple.com/account)
+2. Click **Certificates, Identifiers & Profiles**
+3. Click **Identifiers** in the left sidebar
+4. Click the **+** button to create a new identifier
+5. Select **App IDs** → Continue
+6. Select **App** type → Continue
+7. Fill in:
+   - **Description**: Your app name (e.g., `HKTestApp`)
+   - **Bundle ID**: Select **Explicit** and enter your bundle ID (e.g., `com.yourcompany.hktestapp`)
+8. Scroll down to **Capabilities** and check **HealthKit**
+9. Click **Continue** → **Register**
+
+#### 6.2 Create Provisioning Profile
+
+1. Click **Profiles** in the left sidebar
+2. Click the **+** button
+3. Select **iOS App Development** → Continue
+4. Select the App ID you just created → Continue
+5. Select your development certificate → Continue
+6. Select your test devices (your iPhone must be registered) → Continue
+7. Name the profile (e.g., `HKTestApp Development`)
+8. Click **Generate** → **Download**
+
+#### 6.3 Install Profile on Mac
+
+Double-click the downloaded `.mobileprovision` file to install it.
+
+**Important:** PAServer expects profiles in the legacy location, but Xcode stores them elsewhere. Create a symlink to ensure PAServer can find your profiles:
+
+```bash
+# If the legacy folder exists and is empty, remove it
+rmdir ~/Library/MobileDevice/Provisioning\ Profiles 2>/dev/null
+
+# Create symlink from legacy location to Xcode location
+ln -s ~/Library/Developer/Xcode/UserData/Provisioning\ Profiles \
+      ~/Library/MobileDevice/Provisioning\ Profiles
+```
+
+Alternatively, manually copy profiles:
+```bash
+cp ~/Library/Developer/Xcode/UserData/Provisioning\ Profiles/*.mobileprovision \
+   ~/Library/MobileDevice/Provisioning\ Profiles/
+```
+
+#### 6.4 Configure Delphi Project Bundle ID
+
+Your Delphi project's bundle ID must match the App ID exactly.
+
+1. In RAD Studio, go to **Project > Options**
+2. Select **Version Info** for your iOS Device 64-bit configuration
+3. Find `CFBundleIdentifier` and change it from `$(MSBuildProjectName)` to your actual bundle ID (e.g., `com.yourcompany.hktestapp`)
+4. Click **Save**
+
+Alternatively, edit the `.dproj` file directly and update the `CFBundleIdentifier` in the `VerInfo_Keys` section.
+
 ## API Usage
 
 ### Initialization

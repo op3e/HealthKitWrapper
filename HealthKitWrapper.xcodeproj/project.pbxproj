@@ -11,7 +11,7 @@
 		51E66FA92F073D9900DCCD3E /* HealthKitWrapper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51E66F852F073D9900DCCD3E /* HealthKitWrapper.framework */; };
 		51E66FAA2F073D9900DCCD3E /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51E66F902F073D9900DCCD3E /* HealthKit.framework */; };
 		51E66FAE2F073D9900DCCD3E /* HealthKitWrapper.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 51E66F852F073D9900DCCD3E /* HealthKitWrapper.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		51E671852F084D1C00DCCD3E /* TestWatchApp.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 51E6717B2F084D1B00DCCD3E /* TestWatchApp.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		51E671852F084D1C00DCCD3E /* HKTestApp Watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 51E6717B2F084D1B00DCCD3E /* HKTestApp Watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,7 +27,7 @@
 			containerPortal = 51E66F7C2F073D9900DCCD3E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 51E6717A2F084D1B00DCCD3E;
-			remoteInfo = TestWatchApp;
+			remoteInfo = "HKTestApp Watch";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -46,7 +46,7 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolder = Product;
 			files = (
-				51E671852F084D1C00DCCD3E /* TestWatchApp.app in Embed Watch Content */,
+				51E671852F084D1C00DCCD3E /* HKTestApp Watch.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 		};
@@ -55,24 +55,24 @@
 /* Begin PBXFileReference section */
 		51E66F852F073D9900DCCD3E /* HealthKitWrapper.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = HealthKitWrapper.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		51E66F902F073D9900DCCD3E /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
-		51E66FA02F073D9900DCCD3E /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		51E6717B2F084D1B00DCCD3E /* TestWatchApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestWatchApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		51E66FA02F073D9900DCCD3E /* HKTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HKTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		51E6717B2F084D1B00DCCD3E /* HKTestApp Watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "HKTestApp Watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		51E66FB02F073D9900DCCD3E /* Exceptions for "TestApp" folder in "TestApp" target */ = {
+		51E66FB02F073D9900DCCD3E /* Exceptions for "TestApp" folder in "HKTestApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 51E66FA22F073D9900DCCD3E /* TestApp */;
+			target = 51E66FA22F073D9900DCCD3E /* HKTestApp */;
 		};
-		51E671902F084E0000DCCD3E /* Exceptions for "WatchApp Watch App" folder in "TestWatchApp" target */ = {
+		51E671902F084E0000DCCD3E /* Exceptions for "WatchApp Watch App" folder in "HKTestApp Watch" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 51E6717A2F084D1B00DCCD3E /* TestWatchApp */;
+			target = 51E6717A2F084D1B00DCCD3E /* HKTestApp Watch */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -85,7 +85,7 @@
 		51E66FA12F073D9900DCCD3E /* TestApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				51E66FB02F073D9900DCCD3E /* Exceptions for "TestApp" folder in "TestApp" target */,
+				51E66FB02F073D9900DCCD3E /* Exceptions for "TestApp" folder in "HKTestApp" target */,
 			);
 			path = TestApp;
 			sourceTree = "<group>";
@@ -93,7 +93,7 @@
 		51E6717C2F084D1B00DCCD3E /* WatchApp Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				51E671902F084E0000DCCD3E /* Exceptions for "WatchApp Watch App" folder in "TestWatchApp" target */,
+				51E671902F084E0000DCCD3E /* Exceptions for "WatchApp Watch App" folder in "HKTestApp Watch" target */,
 			);
 			path = "WatchApp Watch App";
 			sourceTree = "<group>";
@@ -137,8 +137,8 @@
 			isa = PBXGroup;
 			children = (
 				51E66F852F073D9900DCCD3E /* HealthKitWrapper.framework */,
-				51E66FA02F073D9900DCCD3E /* TestApp.app */,
-				51E6717B2F084D1B00DCCD3E /* TestWatchApp.app */,
+				51E66FA02F073D9900DCCD3E /* HKTestApp.app */,
+				51E6717B2F084D1B00DCCD3E /* HKTestApp Watch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -181,9 +181,9 @@
 			productReference = 51E66F852F073D9900DCCD3E /* HealthKitWrapper.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		51E66FA22F073D9900DCCD3E /* TestApp */ = {
+		51E66FA22F073D9900DCCD3E /* HKTestApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 51E66FA82F073D9900DCCD3E /* Build configuration list for PBXNativeTarget "TestApp" */;
+			buildConfigurationList = 51E66FA82F073D9900DCCD3E /* Build configuration list for PBXNativeTarget "HKTestApp" */;
 			buildPhases = (
 				51E66FA32F073D9900DCCD3E /* Sources */,
 				51E66FA42F073D9900DCCD3E /* Frameworks */,
@@ -200,14 +200,14 @@
 			fileSystemSynchronizedGroups = (
 				51E66FA12F073D9900DCCD3E /* TestApp */,
 			);
-			name = TestApp;
-			productName = TestApp;
-			productReference = 51E66FA02F073D9900DCCD3E /* TestApp.app */;
+			name = HKTestApp;
+			productName = HKTestApp;
+			productReference = 51E66FA02F073D9900DCCD3E /* HKTestApp.app */;
 			productType = "com.apple.product-type.application";
 		};
-		51E6717A2F084D1B00DCCD3E /* TestWatchApp */ = {
+		51E6717A2F084D1B00DCCD3E /* HKTestApp Watch */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 51E671862F084D1C00DCCD3E /* Build configuration list for PBXNativeTarget "TestWatchApp" */;
+			buildConfigurationList = 51E671862F084D1C00DCCD3E /* Build configuration list for PBXNativeTarget "HKTestApp Watch" */;
 			buildPhases = (
 				51E671772F084D1B00DCCD3E /* Sources */,
 				51E671782F084D1B00DCCD3E /* Frameworks */,
@@ -218,9 +218,9 @@
 			fileSystemSynchronizedGroups = (
 				51E6717C2F084D1B00DCCD3E /* WatchApp Watch App */,
 			);
-			name = TestWatchApp;
-			productName = TestWatchApp;
-			productReference = 51E6717B2F084D1B00DCCD3E /* TestWatchApp.app */;
+			name = "HKTestApp Watch";
+			productName = "HKTestApp Watch";
+			productReference = 51E6717B2F084D1B00DCCD3E /* HKTestApp Watch.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -260,8 +260,8 @@
 			projectRoot = "";
 			targets = (
 				51E66F842F073D9900DCCD3E /* HealthKitWrapper */,
-				51E66FA22F073D9900DCCD3E /* TestApp */,
-				51E6717A2F084D1B00DCCD3E /* TestWatchApp */,
+				51E66FA22F073D9900DCCD3E /* HKTestApp */,
+				51E6717A2F084D1B00DCCD3E /* HKTestApp Watch */,
 			);
 		};
 /* End PBXProject section */
@@ -310,7 +310,7 @@
 		};
 		51E671842F084D1C00DCCD3E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 51E6717A2F084D1B00DCCD3E /* TestWatchApp */;
+			target = 51E6717A2F084D1B00DCCD3E /* HKTestApp Watch */;
 			targetProxy = 51E671832F084D1C00DCCD3E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -533,7 +533,7 @@
 			};
 			name = Release;
 		};
-		51E66FA62F073D9900DCCD3E /* Debug configuration for PBXNativeTarget "TestApp" */ = {
+		51E66FA62F073D9900DCCD3E /* Debug configuration for PBXNativeTarget "HKTestApp" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -549,7 +549,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.op3e.diego;
+				PRODUCT_BUNDLE_IDENTIFIER = com.op3e.hktestapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -559,7 +559,7 @@
 			};
 			name = Debug;
 		};
-		51E66FA72F073D9900DCCD3E /* Release configuration for PBXNativeTarget "TestApp" */ = {
+		51E66FA72F073D9900DCCD3E /* Release configuration for PBXNativeTarget "HKTestApp" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -575,7 +575,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.op3e.diego;
+				PRODUCT_BUNDLE_IDENTIFIER = com.op3e.hktestapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -586,7 +586,7 @@
 			};
 			name = Release;
 		};
-		51E671872F084D1C00DCCD3E /* Debug configuration for PBXNativeTarget "TestWatchApp" */ = {
+		51E671872F084D1C00DCCD3E /* Debug configuration for PBXNativeTarget "HKTestApp Watch" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -603,7 +603,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.op3e.diego.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.op3e.hktestapp.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -618,7 +618,7 @@
 			};
 			name = Debug;
 		};
-		51E671882F084D1C00DCCD3E /* Release configuration for PBXNativeTarget "TestWatchApp" */ = {
+		51E671882F084D1C00DCCD3E /* Release configuration for PBXNativeTarget "HKTestApp Watch" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -635,7 +635,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.op3e.diego.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.op3e.hktestapp.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -670,19 +670,19 @@
 			);
 			defaultConfigurationName = Release;
 		};
-		51E66FA82F073D9900DCCD3E /* Build configuration list for PBXNativeTarget "TestApp" */ = {
+		51E66FA82F073D9900DCCD3E /* Build configuration list for PBXNativeTarget "HKTestApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				51E66FA62F073D9900DCCD3E /* Debug configuration for PBXNativeTarget "TestApp" */,
-				51E66FA72F073D9900DCCD3E /* Release configuration for PBXNativeTarget "TestApp" */,
+				51E66FA62F073D9900DCCD3E /* Debug configuration for PBXNativeTarget "HKTestApp" */,
+				51E66FA72F073D9900DCCD3E /* Release configuration for PBXNativeTarget "HKTestApp" */,
 			);
 			defaultConfigurationName = Release;
 		};
-		51E671862F084D1C00DCCD3E /* Build configuration list for PBXNativeTarget "TestWatchApp" */ = {
+		51E671862F084D1C00DCCD3E /* Build configuration list for PBXNativeTarget "HKTestApp Watch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				51E671872F084D1C00DCCD3E /* Debug configuration for PBXNativeTarget "TestWatchApp" */,
-				51E671882F084D1C00DCCD3E /* Release configuration for PBXNativeTarget "TestWatchApp" */,
+				51E671872F084D1C00DCCD3E /* Debug configuration for PBXNativeTarget "HKTestApp Watch" */,
+				51E671882F084D1C00DCCD3E /* Release configuration for PBXNativeTarget "HKTestApp Watch" */,
 			);
 			defaultConfigurationName = Release;
 		};

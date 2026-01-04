@@ -7,7 +7,7 @@ set -e
 
 # Default values
 XCODE_PROJECT="/Users/alexwallace/Src/HealthKitWrapper/HealthKitWrapper.xcodeproj"
-WATCH_TARGET="TestWatchApp"
+WATCH_TARGET="HKTestApp Watch"
 DELPHI_APP=""
 DERIVED_DATA="/Users/alexwallace/Library/Developer/Xcode/DerivedData"
 DEVICE_ID=""

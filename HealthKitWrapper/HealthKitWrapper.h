@@ -45,6 +45,12 @@ typedef struct {
     int sourceDeviceType;  // 0=unknown, 1=watch, 2=phone, 3=other
 } HKWHeartRateSample;
 
+typedef struct {
+    double sdnn;           // SDNN value in milliseconds
+    double timestamp;
+    int sourceDeviceType;  // 0=unknown, 1=watch, 2=phone, 3=other
+} HKWHeartRateVariabilitySample;
+
 // MARK: - Initialization
 
 int HKW_Initialize(void);
@@ -70,6 +76,20 @@ HKWOperationStatus HKW_GetHeartRateRangeStatus(void);
 int HKW_GetHeartRateRangeCount(void);
 int HKW_GetHeartRateRangeResult(int index, HKWHeartRateSample* outSample, int* outErrorCode);
 void HKW_ClearHeartRateRangeResults(void);
+
+// MARK: - Latest Heart Rate Variability (HRV)
+
+int HKW_QueryLatestHRV(void);
+HKWOperationStatus HKW_GetLatestHRVStatus(void);
+int HKW_GetLatestHRVResult(HKWHeartRateVariabilitySample* outSample, int* outErrorCode);
+
+// MARK: - Historical Heart Rate Variability (HRV)
+
+int HKW_QueryHRVRange(double startTimestamp, double endTimestamp, int maxResults);
+HKWOperationStatus HKW_GetHRVRangeStatus(void);
+int HKW_GetHRVRangeCount(void);
+int HKW_GetHRVRangeResult(int index, HKWHeartRateVariabilitySample* outSample, int* outErrorCode);
+void HKW_ClearHRVRangeResults(void);
 
 // MARK: - Streaming Heart Rate
 

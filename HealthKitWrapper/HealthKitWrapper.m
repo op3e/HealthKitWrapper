@@ -36,6 +36,17 @@
 @property (nonatomic, strong) NSMutableArray *rangeHRSamples;
 @property (nonatomic, assign) int rangeHRErrorCode;
 
+// Latest HRV state
+@property (nonatomic, assign) HKWOperationStatus latestHRVStatus;
+@property (nonatomic, assign) HKWHeartRateVariabilitySample latestHRVSample;
+@property (nonatomic, assign) BOOL hasLatestHRV;
+@property (nonatomic, assign) int latestHRVErrorCode;
+
+// HRV range query state
+@property (nonatomic, assign) HKWOperationStatus rangeHRVStatus;
+@property (nonatomic, strong) NSMutableArray *rangeHRVSamples;
+@property (nonatomic, assign) int rangeHRVErrorCode;
+
 // Streaming state
 @property (nonatomic, strong) HKAnchoredObjectQuery *streamingQuery;
 @property (nonatomic, strong) NSMutableArray *streamingBuffer;
@@ -68,11 +79,14 @@
     self = [super init];
     if (self) {
         _rangeHRSamples = [NSMutableArray array];
+        _rangeHRVSamples = [NSMutableArray array];
         _streamingBuffer = [NSMutableArray array];
         _watchHeartRateBuffer = [NSMutableArray array];
         _authStatus = HKW_STATUS_IDLE;
         _latestHRStatus = HKW_STATUS_IDLE;
         _rangeHRStatus = HKW_STATUS_IDLE;
+        _latestHRVStatus = HKW_STATUS_IDLE;
+        _rangeHRVStatus = HKW_STATUS_IDLE;
 
         // Setup WatchConnectivity
         if ([WCSession isSupported]) {
@@ -224,7 +238,8 @@ int HKW_RequestAuthorization(void) {
         mgr.authErrorCode = HKW_SUCCESS;
 
         HKQuantityType *heartRateType = [HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeartRate];
-        NSSet *readTypes = [NSSet setWithObject:heartRateType];
+        HKQuantityType *hrvType = [HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeartRateVariabilitySDNN];
+        NSSet *readTypes = [NSSet setWithObjects:heartRateType, hrvType, nil];
 
         [mgr.healthStore requestAuthorizationToShareTypes:nil
                                                 readTypes:readTypes
@@ -444,6 +459,198 @@ void HKW_ClearHeartRateRangeResults(void) {
     }
 }
 
+// MARK: Latest Heart Rate Variability (HRV)
+
+int HKW_QueryLatestHRV(void) {
+    @autoreleasepool {
+        HKWManager *mgr = [HKWManager shared];
+
+        if (!mgr.healthStore) {
+            mgr.lastErrorMessage = @"Not initialized. Call HKW_Initialize first.";
+            return HKW_ERROR_NOT_INITIALIZED;
+        }
+
+        if (mgr.latestHRVStatus == HKW_STATUS_PENDING) {
+            return HKW_ERROR_OPERATION_PENDING;
+        }
+
+        mgr.latestHRVStatus = HKW_STATUS_PENDING;
+        mgr.hasLatestHRV = NO;
+        mgr.latestHRVErrorCode = HKW_SUCCESS;
+
+        HKQuantityType *hrvType = [HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeartRateVariabilitySDNN];
+        NSSortDescriptor *sortByDate = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierEndDate ascending:NO];
+
+        HKSampleQuery *query = [[HKSampleQuery alloc]
+            initWithSampleType:hrvType
+                     predicate:nil
+                         limit:1
+               sortDescriptors:@[sortByDate]
+                resultsHandler:^(HKSampleQuery *query, NSArray *results, NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (error) {
+                    mgr.latestHRVStatus = HKW_STATUS_ERROR;
+                    mgr.latestHRVErrorCode = HKW_ERROR_QUERY_FAILED;
+                    mgr.lastErrorMessage = error.localizedDescription;
+                } else if (results.count == 0) {
+                    mgr.latestHRVStatus = HKW_STATUS_COMPLETED;
+                    mgr.hasLatestHRV = NO;
+                    mgr.latestHRVErrorCode = HKW_SUCCESS;
+                } else {
+                    HKQuantitySample *sample = results.firstObject;
+                    // HRV is stored in seconds, convert to milliseconds
+                    HKUnit *secondUnit = [HKUnit secondUnit];
+                    double sdnnSeconds = [sample.quantity doubleValueForUnit:secondUnit];
+                    double sdnnMs = sdnnSeconds * 1000.0;
+
+                    HKWHeartRateVariabilitySample hrvSample;
+                    hrvSample.sdnn = sdnnMs;
+                    hrvSample.timestamp = [sample.endDate timeIntervalSince1970];
+                    hrvSample.sourceDeviceType = [mgr deviceTypeFromSource:sample.sourceRevision];
+                    mgr.latestHRVSample = hrvSample;
+
+                    mgr.hasLatestHRV = YES;
+                    mgr.latestHRVStatus = HKW_STATUS_COMPLETED;
+                    mgr.latestHRVErrorCode = HKW_SUCCESS;
+                }
+            });
+        }];
+
+        [mgr.healthStore executeQuery:query];
+        return HKW_SUCCESS;
+    }
+}
+
+HKWOperationStatus HKW_GetLatestHRVStatus(void) {
+    return [HKWManager shared].latestHRVStatus;
+}
+
+int HKW_GetLatestHRVResult(HKWHeartRateVariabilitySample* outSample, int* outErrorCode) {
+    HKWManager *mgr = [HKWManager shared];
+
+    if (outErrorCode) {
+        *outErrorCode = mgr.latestHRVErrorCode;
+    }
+
+    if (!mgr.hasLatestHRV) {
+        return 0;
+    }
+
+    if (outSample) {
+        *outSample = mgr.latestHRVSample;
+    }
+
+    return 1;
+}
+
+// MARK: Historical Heart Rate Variability (HRV)
+
+int HKW_QueryHRVRange(double startTimestamp, double endTimestamp, int maxResults) {
+    @autoreleasepool {
+        HKWManager *mgr = [HKWManager shared];
+
+        if (!mgr.healthStore) {
+            mgr.lastErrorMessage = @"Not initialized. Call HKW_Initialize first.";
+            return HKW_ERROR_NOT_INITIALIZED;
+        }
+
+        if (mgr.rangeHRVStatus == HKW_STATUS_PENDING) {
+            return HKW_ERROR_OPERATION_PENDING;
+        }
+
+        if (startTimestamp >= endTimestamp) {
+            mgr.lastErrorMessage = @"Invalid date range: start must be before end";
+            return HKW_ERROR_INVALID_PARAM;
+        }
+
+        if (maxResults <= 0) {
+            maxResults = 1000;
+        }
+
+        mgr.rangeHRVStatus = HKW_STATUS_PENDING;
+        [mgr.rangeHRVSamples removeAllObjects];
+        mgr.rangeHRVErrorCode = HKW_SUCCESS;
+
+        NSDate *startDate = [NSDate dateWithTimeIntervalSince1970:startTimestamp];
+        NSDate *endDate = [NSDate dateWithTimeIntervalSince1970:endTimestamp];
+
+        HKQuantityType *hrvType = [HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeartRateVariabilitySDNN];
+        NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionStrictEndDate];
+        NSSortDescriptor *sortByDate = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierEndDate ascending:YES];
+
+        HKSampleQuery *query = [[HKSampleQuery alloc]
+            initWithSampleType:hrvType
+                     predicate:predicate
+                         limit:maxResults
+               sortDescriptors:@[sortByDate]
+                resultsHandler:^(HKSampleQuery *query, NSArray *results, NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (error) {
+                    mgr.rangeHRVStatus = HKW_STATUS_ERROR;
+                    mgr.rangeHRVErrorCode = HKW_ERROR_QUERY_FAILED;
+                    mgr.lastErrorMessage = error.localizedDescription;
+                } else {
+                    // HRV is stored in seconds, convert to milliseconds
+                    HKUnit *secondUnit = [HKUnit secondUnit];
+
+                    for (HKQuantitySample *sample in results) {
+                        double sdnnSeconds = [sample.quantity doubleValueForUnit:secondUnit];
+                        double sdnnMs = sdnnSeconds * 1000.0;
+
+                        HKWHeartRateVariabilitySample cSample;
+                        cSample.sdnn = sdnnMs;
+                        cSample.timestamp = [sample.endDate timeIntervalSince1970];
+                        cSample.sourceDeviceType = [mgr deviceTypeFromSource:sample.sourceRevision];
+
+                        [mgr.rangeHRVSamples addObject:[NSValue valueWithBytes:&cSample objCType:@encode(HKWHeartRateVariabilitySample)]];
+                    }
+
+                    mgr.rangeHRVStatus = HKW_STATUS_COMPLETED;
+                    mgr.rangeHRVErrorCode = HKW_SUCCESS;
+                }
+            });
+        }];
+
+        [mgr.healthStore executeQuery:query];
+        return HKW_SUCCESS;
+    }
+}
+
+HKWOperationStatus HKW_GetHRVRangeStatus(void) {
+    return [HKWManager shared].rangeHRVStatus;
+}
+
+int HKW_GetHRVRangeCount(void) {
+    return (int)[HKWManager shared].rangeHRVSamples.count;
+}
+
+int HKW_GetHRVRangeResult(int index, HKWHeartRateVariabilitySample* outSample, int* outErrorCode) {
+    HKWManager *mgr = [HKWManager shared];
+
+    if (outErrorCode) {
+        *outErrorCode = mgr.rangeHRVErrorCode;
+    }
+
+    if (index < 0 || index >= (int)mgr.rangeHRVSamples.count) {
+        return HKW_ERROR_INVALID_PARAM;
+    }
+
+    if (outSample) {
+        NSValue *value = mgr.rangeHRVSamples[index];
+        [value getValue:outSample];
+    }
+
+    return HKW_SUCCESS;
+}
+
+void HKW_ClearHRVRangeResults(void) {
+    @autoreleasepool {
+        HKWManager *mgr = [HKWManager shared];
+        [mgr.rangeHRVSamples removeAllObjects];
+        mgr.rangeHRVStatus = HKW_STATUS_IDLE;
+    }
+}
+
 // MARK: Streaming Heart Rate
 
 int HKW_StartHeartRateStreaming(void) {
@@ -574,8 +781,11 @@ void HKW_Reset(void) {
         mgr.authStatus = HKW_STATUS_IDLE;
         mgr.latestHRStatus = HKW_STATUS_IDLE;
         mgr.rangeHRStatus = HKW_STATUS_IDLE;
+        mgr.latestHRVStatus = HKW_STATUS_IDLE;
+        mgr.rangeHRVStatus = HKW_STATUS_IDLE;
 
         [mgr.rangeHRSamples removeAllObjects];
+        [mgr.rangeHRVSamples removeAllObjects];
         [mgr.streamingBuffer removeAllObjects];
         [mgr.watchHeartRateBuffer removeAllObjects];
 
