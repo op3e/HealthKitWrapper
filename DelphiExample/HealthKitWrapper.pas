@@ -32,6 +32,13 @@ type
   end;
   PHKWHeartRateSample = ^THKWHeartRateSample;
 
+  THKWHeartRateVariabilitySample = packed record
+    sdnn: Double;               // SDNN value in milliseconds
+    timestamp: Double;
+    sourceDeviceType: Integer;  // 0=unknown, 1=watch, 2=phone, 3=other
+  end;
+  PHKWHeartRateVariabilitySample = ^THKWHeartRateVariabilitySample;
+
 // Initialization
 function HKW_Initialize: Integer; cdecl;
   external LIB_HEALTHKIT_WRAPPER name 'HKW_Initialize';
@@ -80,6 +87,35 @@ function HKW_GetHeartRateRangeResult(index: Integer;
 
 procedure HKW_ClearHeartRateRangeResults; cdecl;
   external LIB_HEALTHKIT_WRAPPER name 'HKW_ClearHeartRateRangeResults';
+
+// Latest Heart Rate Variability (HRV)
+function HKW_QueryLatestHRV: Integer; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_QueryLatestHRV';
+
+function HKW_GetLatestHRVStatus: Integer; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_GetLatestHRVStatus';
+
+function HKW_GetLatestHRVResult(outSample: PHKWHeartRateVariabilitySample;
+  outErrorCode: PInteger): Integer; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_GetLatestHRVResult';
+
+// Historical Heart Rate Variability (HRV)
+function HKW_QueryHRVRange(startTimestamp, endTimestamp: Double;
+  maxResults: Integer): Integer; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_QueryHRVRange';
+
+function HKW_GetHRVRangeStatus: Integer; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_GetHRVRangeStatus';
+
+function HKW_GetHRVRangeCount: Integer; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_GetHRVRangeCount';
+
+function HKW_GetHRVRangeResult(index: Integer;
+  outSample: PHKWHeartRateVariabilitySample; outErrorCode: PInteger): Integer; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_GetHRVRangeResult';
+
+procedure HKW_ClearHRVRangeResults; cdecl;
+  external LIB_HEALTHKIT_WRAPPER name 'HKW_ClearHRVRangeResults';
 
 // Streaming Heart Rate
 function HKW_StartHeartRateStreaming: Integer; cdecl;

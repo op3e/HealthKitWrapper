@@ -7,7 +7,22 @@ object Form1: TForm1
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
-  DesignerMasterStyle = 3
+  DesignerMasterStyle = 2
+  object ToolBar1: TToolBar
+    Size.Width = 375.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object LabelTitle: TLabel
+      Align = Center
+      Size.Width = 375.000000000000000000
+      Size.Height = 44.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.HorzAlign = Center
+      Text = 'HealthKit Wrapper Test'
+      TabOrder = 0
+    end
+  end
   object MemoLog: TMemo
     Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
     DataDetectorTypes = []
@@ -19,40 +34,42 @@ object Form1: TForm1
     Size.Width = 375.000000000000000000
     Size.Height = 200.000000000000000000
     Size.PlatformDefault = False
-    TabOrder = 0
-    Viewport.Width = 371.000000000000000000
-    Viewport.Height = 196.000000000000000000
-  end
-  object ToolBar1: TToolBar
-    Size.Width = 375.000000000000000000
-    Size.Height = 44.000000000000000000
-    Size.PlatformDefault = False
     TabOrder = 1
-    object LabelTitle: TLabel
-      Align = Center
-      Size.Width = 375.000000000000000000
-      Size.Height = 44.000000000000000000
-      Size.PlatformDefault = False
-      TextSettings.HorzAlign = Center
-      Text = 'HealthKit Wrapper Test'
-      TabOrder = 0
-    end
+    Viewport.Width = 367.000000000000000000
+    Viewport.Height = 192.000000000000000000
   end
-  object VertScrollBox1: TVertScrollBox
+  object TabControl1: TTabControl
     Align = Client
-    Position.Y = 244.000000000000000000
     Size.Width = 375.000000000000000000
     Size.Height = 423.000000000000000000
     Size.PlatformDefault = False
+    TabHeight = 49.000000000000000000
+    TabIndex = 0
     TabOrder = 2
-    Viewport.Width = 375.000000000000000000
-    Viewport.Height = 423.000000000000000000
-    object LayoutButtons: TLayout
-      Align = Top
-      Size.Width = 375.000000000000000000
-      Size.Height = 400.000000000000000000
+    TabPosition = Top
+    Sizes = (
+      375s
+      374s
+      375s
+      374s
+      375s
+      374s
+      375s
+      374s)
+    object TabSettings: TTabItem
+      CustomIcon = <
+        item
+        end>
+      TextSettings.Trimming = None
+      IsSelected = True
+      Size.Width = 93.000000000000000000
+      Size.Height = 49.000000000000000000
       Size.PlatformDefault = False
+      StyleLookup = ''
       TabOrder = 0
+      Text = 'Settings'
+      ExplicitSize.cx = 94.000000000000000000
+      ExplicitSize.cy = 44.000000000000000000
       object BtnInitialize: TButton
         Position.X = 16.000000000000000000
         Position.Y = 16.000000000000000000
@@ -86,49 +103,138 @@ object Form1: TForm1
         TextSettings.Trimming = None
         OnClick = BtnRequestAuthClick
       end
-      object BtnQueryLatest: TButton
+      object BtnClearLog: TButton
         Position.X = 16.000000000000000000
         Position.Y = 136.000000000000000000
         Size.Width = 343.000000000000000000
         Size.Height = 44.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 3
+        Text = 'Clear Log'
+        TextSettings.Trimming = None
+        OnClick = BtnClearLogClick
+      end
+    end
+    object TabWatch: TTabItem
+      CustomIcon = <
+        item
+        end>
+      TextSettings.Trimming = None
+      IsSelected = False
+      Size.Width = 93.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = ''
+      TabOrder = 0
+      Text = 'Watch'
+      ExplicitSize.cx = 94.000000000000000000
+      ExplicitSize.cy = 44.000000000000000000
+      object BtnWatchStatus: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 16.000000000000000000
+        Size.Width = 343.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        Text = 'Check Watch Status'
+        TextSettings.Trimming = None
+        OnClick = BtnWatchStatusClick
+      end
+      object BtnWatch: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 72.000000000000000000
+        Size.Width = 343.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        Text = 'Start Watch'
+        TextSettings.Trimming = None
+        OnClick = BtnWatchClick
+      end
+    end
+    object TabHeartRate: TTabItem
+      CustomIcon = <
+        item
+        end>
+      TextSettings.Trimming = None
+      IsSelected = False
+      Size.Width = 93.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = ''
+      TabOrder = 0
+      Text = 'Heart Rate'
+      ExplicitSize.cx = 94.000000000000000000
+      ExplicitSize.cy = 44.000000000000000000
+      object BtnQueryLatest: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 16.000000000000000000
+        Size.Width = 343.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
         Text = 'Query Latest Heart Rate'
         TextSettings.Trimming = None
         OnClick = BtnQueryLatestClick
       end
       object BtnQueryRange: TButton
         Position.X = 16.000000000000000000
-        Position.Y = 192.000000000000000000
+        Position.Y = 72.000000000000000000
         Size.Width = 343.000000000000000000
         Size.Height = 44.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 4
+        TabOrder = 1
         Text = 'Query Last 24 Hours'
         TextSettings.Trimming = None
         OnClick = BtnQueryRangeClick
       end
       object BtnStream: TButton
         Position.X = 16.000000000000000000
-        Position.Y = 256.000000000000000000
+        Position.Y = 136.000000000000000000
         Size.Width = 343.000000000000000000
         Size.Height = 44.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 5
+        TabOrder = 2
         Text = 'Start Streaming'
         TextSettings.Trimming = None
         OnClick = BtnStreamClick
       end
-      object BtnClearLog: TButton
+    end
+    object TabHRV: TTabItem
+      CustomIcon = <
+        item
+        end>
+      TextSettings.Trimming = None
+      IsSelected = False
+      Size.Width = 96.000000000000000000
+      Size.Height = 49.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = ''
+      TabOrder = 0
+      Text = 'HRV'
+      ExplicitSize.cx = 94.000000000000000000
+      ExplicitSize.cy = 44.000000000000000000
+      object BtnQueryLatestHRV: TButton
         Position.X = 16.000000000000000000
-        Position.Y = 320.000000000000000000
+        Position.Y = 16.000000000000000000
         Size.Width = 343.000000000000000000
         Size.Height = 44.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 6
-        Text = 'Clear Log'
+        TabOrder = 0
+        Text = 'Query Latest HRV'
         TextSettings.Trimming = None
-        OnClick = BtnClearLogClick
+        OnClick = BtnQueryLatestHRVClick
+      end
+      object BtnQueryHRVRange: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 72.000000000000000000
+        Size.Width = 343.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        Text = 'Query Last 24 Hours HRV'
+        TextSettings.Trimming = None
+        OnClick = BtnQueryHRVRangeClick
       end
     end
   end
@@ -141,9 +247,14 @@ object Form1: TForm1
   end
   object TimerStream: TTimer
     Enabled = False
-    Interval = 1000
     OnTimer = TimerStreamTimer
     Left = 312
     Top = 136
+  end
+  object TimerWatch: TTimer
+    Enabled = False
+    OnTimer = TimerWatchTimer
+    Left = 312
+    Top = 192
   end
 end
